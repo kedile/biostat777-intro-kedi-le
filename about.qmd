@@ -1,0 +1,10 @@
+---
+title: "About"
+---
+
+## About Me
+
+I'm a first-year PhD student in Biostatistics at Johns Hopkins University. Previously, I completed my ScM in Biostatistics at Hopkins and earned my Bachelor's degree in Mathematics from Fudan University. My research focuses on developing statistical and computational methods for problems in genomics. I am fortunate to be advised by Dr. Hongkai Ji and Dr. Weiqiang (Ken) Zhou at Hopkins, and by Dr. Shuqin Zhang at Fudan.
+
+### Contact
+Email: [kle31@jh.edu]

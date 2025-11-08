@@ -1,0 +1,147 @@
+---
+title: "Data analysis — UFO Sightings"
+execute:
+  warning: false
+  message: false
+---
+
+**Question:**  
+What are the patterns behind the UFO sightings? Do the aliens have a preference on when and where to visit in the US?
+
+**Audience:**  
+American people interested in making friends with aliens.
+
+
+## Dataset
+
+For the analysis, we use the *UFO Sightings* dataset from Kaggle:
+
+> https://www.kaggle.com/datasets/NUFORC/ufo-sightings  
+
+
+The dataset contains public over 80,000 reports of Unidentified Flying Objects (UFOs) over the last century, including location, shape, date, and duration.
+
+::: {.callout-note}
+Note: This Kaggle dataset was originally scraped, geolocated, and time standardized from NUFORC data [@nuforc] by Sigmond Axel.
+:::
+
+Here's the link to the data dictionary: 
+
+> https://www.kaggle.com/datasets/NUFORC/ufo-sightings
+
+::: {.column-margin}
+Margin reserved for alien tourists.
+:::
+
+## Data Analysis
+
+We will visualize the data using **ggplot2** [@ggplot2] and will perform data manipulation using **dplyr** [@dplyr].
+
+First, we load the UFO dataset and filter the data to only keep those observed in the US.
+
+```{r}
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+library(lubridate)
+
+## load the data
+ufo <- read.csv("data/ufo.csv")
+
+## filter the data
+ufo_clean <- ufo %>%
+    select(datetime, city, state, country, shape, duration..seconds.) %>%
+    drop_na(state, shape) %>%
+    filter(country == "us") %>%
+    mutate(date = parse_date_time(datetime, orders = c("mdy HMS", "mdy HM", "mdy"))) %>%
+    mutate(year = year(date)) %>%
+    filter(!is.na(year))
+
+head(ufo_clean)
+```
+
+Next, we summarize the patterns of the observed UFOs.
+
+```{r}
+ufo_clean %>%
+    count(year) %>%
+    ggplot(aes(x = year, y = n)) +
+    geom_col() +
+    labs(title = "UFO Sightings Over Time",
+         subtitle = "Cases in US",
+         x = "Year",
+         y = "Number of Reports",
+         caption = "Source: NUFORC via Kaggle") +
+    theme_minimal() + 
+    theme(plot.title = element_text(size = 20, face = "bold"),
+          plot.subtitle = element_text(size = 16),
+          axis.title = element_text(size = 15),
+          axis.text = element_text(size = 15),
+          plot.caption = element_text(size = 10))
+```
+
+We can tell from the plot that the interest among aliens in visiting the US has increased in the recent years.
+
+```{r, fig.width=14, fig.height=20}
+ufo_clean %>%
+    count(state, year) %>%
+    ggplot(aes(x = year, y = n)) +
+    geom_line() +
+    facet_wrap(~ state, ncol = 6) +
+    labs(title = "UFO Sightings Over Time",
+         subtitle = "Faceted by US state",
+         x = "Year",
+         y = "Number of Reports",
+         caption = "Source: NUFORC via Kaggle") +
+    theme_minimal() + 
+    theme(plot.title = element_text(size = 20, face = "bold"),
+          plot.subtitle = element_text(size = 16),
+          axis.title = element_text(size = 15),
+          axis.text = element_text(size = 10),
+          plot.caption = element_text(size = 10), 
+          strip.text = element_text(size = 14, face = "bold"))
+```
+
+Among the states in the US, the aliens preferred California, Florida, and Washington the most. They do know where to visit!
+
+```{r}
+ufo_clean %>%
+  select(year, duration..seconds.) %>%
+  mutate(duration..seconds. = log10(as.numeric(duration..seconds.))) %>%
+  mutate(
+    decade = floor(year / 10) * 10
+  ) %>%
+  filter(!is.na(duration..seconds.)) %>%
+  filter(duration..seconds. < quantile(duration..seconds., 0.99, na.rm=TRUE), duration..seconds. > quantile(duration..seconds., 0.01, na.rm=TRUE)) %>%
+  ggplot(aes(x = factor(decade), y = as.numeric(duration..seconds.))) +
+  geom_violin(fill = "skyblue", alpha = 0.6, color = "black") +
+  labs(title = "UFO Sighting Duration by Decade",
+       subtitle = "Violin plot",
+       x = "Decade",
+       y = "Duration (seconds) log10 transformed",
+       caption = "Source: NUFORC via Kaggle") +
+  theme_minimal() +
+  theme(plot.title = element_text(size = 20, face = "bold"),
+        plot.subtitle = element_text(size = 16),
+        axis.title = element_text(size = 15),
+        axis.text  = element_text(size = 12),
+        plot.caption = element_text(size = 10))
+```
+
+The technology of the UFOs doesn't seem to improve since the duration of time they are observed by the passionate human beings remains the same over the decades.
+
+::: {.callout-caution}
+Alien incoming.
+:::
+
+![](/image/alien.jpg){width="60%" fig-align="center"}
+
+## Summary
+
+The study is intended to summarize the patterns of when and where the aliens tend to visit US in the last century. The data we used is from Kaggle but is originally collected from NUFORC data by Sigmond Axel. From our study, we found that US is growing in popularity among the aliens as a vacation destination in the recent years. They prefer to visit California, Florida, and Washtington during their stays. However, the technology they used remain relatively unchanged, which is suggested by the consistentency in the duration of sightings. Therefore, for those who want to make friends with aliens, here is the chance.
+
+## Functions Used
+
+dplyr/tidyr: select, drop_na, filter, mutate, count.
+
+ggplot2: geom_col, geom_line, geom_violin.

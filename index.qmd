@@ -1,0 +1,8 @@
+---
+title: "Welcome"
+---
+
+I'm Kedi Le, a first-year PhD student in Biostatistics at Johns Hopkins University working on statistical genomics.
+
+![](/image/kedile.jpg){width="60%" fig-align="center"}
+

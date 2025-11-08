@@ -1,0 +1,20 @@
+project:
+  type: website
+  output-dir: docs
+
+website:
+  title: "Kedi Le"
+  navbar:
+    right:
+      - href: index.qmd
+        text: Home
+      - href: about.qmd
+        text: About
+      - href: data_analysis.qmd
+        text: Data Analysis
+
+format:
+  html:
+    theme: cosmo
+    toc: true
+bibliography: references.bib

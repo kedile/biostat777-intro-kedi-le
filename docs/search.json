@@ -1,0 +1,58 @@
+[
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "Welcome",
+    "section": "",
+    "text": "I’m Kedi Le, a first-year PhD student in Biostatistics at Johns Hopkins University working on statistical genomics."
+  },
+  {
+    "objectID": "about.html",
+    "href": "about.html",
+    "title": "About",
+    "section": "",
+    "text": "I’m a first-year PhD student in Biostatistics at Johns Hopkins University. Previously, I completed my ScM in Biostatistics at Hopkins and earned my Bachelor’s degree in Mathematics from Fudan University. My research focuses on developing statistical and computational methods for problems in genomics. I am fortunate to be advised by Dr. Hongkai Ji and Dr. Weiqiang (Ken) Zhou at Hopkins, and by Dr. Shuqin Zhang at Fudan.\n\n\nEmail: [kle31@jh.edu]"
+  },
+  {
+    "objectID": "about.html#about-me",
+    "href": "about.html#about-me",
+    "title": "About",
+    "section": "",
+    "text": "I’m a first-year PhD student in Biostatistics at Johns Hopkins University. Previously, I completed my ScM in Biostatistics at Hopkins and earned my Bachelor’s degree in Mathematics from Fudan University. My research focuses on developing statistical and computational methods for problems in genomics. I am fortunate to be advised by Dr. Hongkai Ji and Dr. Weiqiang (Ken) Zhou at Hopkins, and by Dr. Shuqin Zhang at Fudan.\n\n\nEmail: [kle31@jh.edu]"
+  },
+  {
+    "objectID": "data_analysis.html",
+    "href": "data_analysis.html",
+    "title": "Data analysis — UFO Sightings",
+    "section": "",
+    "text": "Question:\nWhat are the patterns behind the UFO sightings? Do the aliens have a preference on when and where to visit in the US?\nAudience:\nAmerican people interested in making friends with aliens."
+  },
+  {
+    "objectID": "data_analysis.html#dataset",
+    "href": "data_analysis.html#dataset",
+    "title": "Data analysis — UFO Sightings",
+    "section": "Dataset",
+    "text": "Dataset\nFor the analysis, we use the UFO Sightings dataset from Kaggle:\n\nhttps://www.kaggle.com/datasets/NUFORC/ufo-sightings\n\nThe dataset contains public over 80,000 reports of Unidentified Flying Objects (UFOs) over the last century, including location, shape, date, and duration.\n\n\n\n\n\n\nNote\n\n\n\nNote: This Kaggle dataset was originally scraped, geolocated, and time standardized from NUFORC data (“NUFORC UFO Reports,” n.d.) by Sigmond Axel.\n\n\nHere’s the link to the data dictionary:\n\nhttps://www.kaggle.com/datasets/NUFORC/ufo-sightings\n\n\n\nMargin reserved for alien tourists."
+  },
+  {
+    "objectID": "data_analysis.html#data-analysis",
+    "href": "data_analysis.html#data-analysis",
+    "title": "Data analysis — UFO Sightings",
+    "section": "Data Analysis",
+    "text": "Data Analysis\nWe will visualize the data using ggplot2 (Wickham 2016) and will perform data manipulation using dplyr (Wickham et al. 2025).\nFirst, we load the UFO dataset and filter the data to only keep those observed in the US.\n\nlibrary(dplyr)\nlibrary(tidyr)\nlibrary(ggplot2)\nlibrary(lubridate)\n\n## load the data\nufo &lt;- read.csv(\"data/ufo.csv\")\n\n## filter the data\nufo_clean &lt;- ufo %&gt;%\n    select(datetime, city, state, country, shape, duration..seconds.) %&gt;%\n    drop_na(state, shape) %&gt;%\n    filter(country == \"us\") %&gt;%\n    mutate(date = parse_date_time(datetime, orders = c(\"mdy HMS\", \"mdy HM\", \"mdy\"))) %&gt;%\n    mutate(year = year(date)) %&gt;%\n    filter(!is.na(year))\n\nhead(ufo_clean)\n\n          datetime       city state country    shape duration..seconds.\n1 10/10/1949 20:30 san marcos    tx      us cylinder               2700\n2 10/10/1956 21:00       edna    tx      us   circle                 20\n3 10/10/1960 20:00    kaneohe    hi      us    light                900\n4 10/10/1961 19:00    bristol    tn      us   sphere                300\n5 10/10/1965 23:45    norwalk    ct      us     disk               1200\n6 10/10/1966 20:00  pell city    al      us     disk                180\n                 date year\n1 1949-10-10 20:30:00 1949\n2 1956-10-10 21:00:00 1956\n3 1960-10-10 20:00:00 1960\n4 1961-10-10 19:00:00 1961\n5 1965-10-10 23:45:00 1965\n6 1966-10-10 20:00:00 1966\n\n\nNext, we summarize the patterns of the observed UFOs.\n\nufo_clean %&gt;%\n    count(year) %&gt;%\n    ggplot(aes(x = year, y = n)) +\n    geom_col() +\n    labs(title = \"UFO Sightings Over Time\",\n         subtitle = \"Cases in US\",\n         x = \"Year\",\n         y = \"Number of Reports\",\n         caption = \"Source: NUFORC via Kaggle\") +\n    theme_minimal() + \n    theme(plot.title = element_text(size = 20, face = \"bold\"),\n          plot.subtitle = element_text(size = 16),\n          axis.title = element_text(size = 15),\n          axis.text = element_text(size = 15),\n          plot.caption = element_text(size = 10))\n\n\n\n\n\n\n\n\nWe can tell from the plot that the interest among aliens in visiting the US has increased in the recent years.\n\nufo_clean %&gt;%\n    count(state, year) %&gt;%\n    ggplot(aes(x = year, y = n)) +\n    geom_line() +\n    facet_wrap(~ state, ncol = 6) +\n    labs(title = \"UFO Sightings Over Time\",\n         subtitle = \"Faceted by US state\",\n         x = \"Year\",\n         y = \"Number of Reports\",\n         caption = \"Source: NUFORC via Kaggle\") +\n    theme_minimal() + \n    theme(plot.title = element_text(size = 20, face = \"bold\"),\n          plot.subtitle = element_text(size = 16),\n          axis.title = element_text(size = 15),\n          axis.text = element_text(size = 10),\n          plot.caption = element_text(size = 10), \n          strip.text = element_text(size = 14, face = \"bold\"))\n\n\n\n\n\n\n\n\nAmong the states in the US, the aliens preferred California, Florida, and Washington the most. They do know where to visit!\n\nufo_clean %&gt;%\n  select(year, duration..seconds.) %&gt;%\n  mutate(duration..seconds. = log10(as.numeric(duration..seconds.))) %&gt;%\n  mutate(\n    decade = floor(year / 10) * 10\n  ) %&gt;%\n  filter(!is.na(duration..seconds.)) %&gt;%\n  filter(duration..seconds. &lt; quantile(duration..seconds., 0.99, na.rm=TRUE), duration..seconds. &gt; quantile(duration..seconds., 0.01, na.rm=TRUE)) %&gt;%\n  ggplot(aes(x = factor(decade), y = as.numeric(duration..seconds.))) +\n  geom_violin(fill = \"skyblue\", alpha = 0.6, color = \"black\") +\n  labs(title = \"UFO Sighting Duration by Decade\",\n       subtitle = \"Violin plot\",\n       x = \"Decade\",\n       y = \"Duration (seconds) log10 transformed\",\n       caption = \"Source: NUFORC via Kaggle\") +\n  theme_minimal() +\n  theme(plot.title = element_text(size = 20, face = \"bold\"),\n        plot.subtitle = element_text(size = 16),\n        axis.title = element_text(size = 15),\n        axis.text  = element_text(size = 12),\n        plot.caption = element_text(size = 10))\n\n\n\n\n\n\n\n\nThe technology of the UFOs doesn’t seem to improve since the duration of time they are observed by the passionate human beings remains the same over the decades.\n\n\n\n\n\n\nCaution\n\n\n\nAlien incoming."
+  },
+  {
+    "objectID": "data_analysis.html#summary",
+    "href": "data_analysis.html#summary",
+    "title": "Data analysis — UFO Sightings",
+    "section": "Summary",
+    "text": "Summary\nThe study is intended to summarize the patterns of when and where the aliens tend to visit US in the last century. The data we used is from Kaggle but is originally collected from NUFORC data by Sigmond Axel. From our study, we found that US is growing in popularity among the aliens as a vacation destination in the recent years. They prefer to visit California, Florida, and Washtington during their stays. However, the technology they used remain relatively unchanged, which is suggested by the consistentency in the duration of sightings. Therefore, for those who want to make friends with aliens, here is the chance."
+  },
+  {
+    "objectID": "data_analysis.html#functions-used",
+    "href": "data_analysis.html#functions-used",
+    "title": "Data analysis — UFO Sightings",
+    "section": "Functions Used",
+    "text": "Functions Used\ndplyr/tidyr: select, drop_na, filter, mutate, count.\nggplot2: geom_col, geom_line, geom_violin."
+  }
+]
