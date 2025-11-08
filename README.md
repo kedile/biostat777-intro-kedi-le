@@ -7,7 +7,7 @@ This is a class project for 140.777 Statistical Programming Paradigms and Workfl
 
 ## Website
 
-The website is here: .
+The website is here: https://kedile.github.io/biostat777-intro-kedi-le/.
 
 ## Technical Details
 
